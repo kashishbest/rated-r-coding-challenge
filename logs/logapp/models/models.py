@@ -12,3 +12,10 @@ class Log(models.Model):
 
     def __str__(self):
         return f"Log from {self.customer_id} at {self.time_stamp}"
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['customer_id']),  # Single-field index
+            models.Index(fields=['time_stamp']),  # Single-field index
+            models.Index(fields=['customer_id', 'time_stamp']),  # Composite index
+        ]
