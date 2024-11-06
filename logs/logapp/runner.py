@@ -1,11 +1,11 @@
 from typing import List
 
 from logs.logapp.models.models import Log
-from logs.logapp.parser import LogParser
+from logs.logapp.parser import LogParserInterface
 
 
 class LogFileProcessor:
-    def __init__(self, parser: LogParser, file_path: str):
+    def __init__(self, parser: LogParserInterface, file_path: str):
         self.parser = parser
         self.file_path = file_path
 

@@ -56,4 +56,6 @@ def customer_stats(request, id):
         stats=stats,
     )
     serializer = StatsResponseSerializer(response_data)
-    return JsonResponse(serializer.data)  # return JsonResponse(response_data)
+    return JsonResponse(serializer.data)
+
+# TODO : round all float to 2 digits

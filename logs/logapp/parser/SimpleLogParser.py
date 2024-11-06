@@ -1,13 +1,17 @@
 from datetime import datetime
+from typing import List
 
 from logs.logapp.models.models import Log
-from logs.logapp.parser import LogParser
+from logs.logapp.parser import LogParserInterface
 
 
-class SimpleLogParser(LogParser):
+class SimpleLogParser(LogParserInterface):
 
-    @staticmethod
-    def parse(log_entry: str) -> Log:
+    def parse_file(self, file_path: str) -> List[Log]:
+        with open(file_path, 'r') as file:
+            return [self.parse(line) for line in file]
+
+    def parse(self, log_entry: str) -> Log:
         parts = log_entry.split()
         time_stamp = datetime.strptime(f"{parts[0]} {parts[1]}", "%Y-%m-%d %H:%M:%S")
         customer_id = parts[2]
@@ -22,3 +26,5 @@ class SimpleLogParser(LogParser):
             status_code=status_code,
             duration=duration
         )
+
+
