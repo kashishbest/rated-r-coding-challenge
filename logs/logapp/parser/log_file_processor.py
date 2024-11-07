@@ -1,7 +1,7 @@
-from typing import List
+from typing import Iterator
 
-from logs.logapp.models.models import Log
-from logs.logapp.parser import LogParserInterface
+from logapp.models.models import Log
+from logapp.parser import LogParserInterface
 
 
 class LogFileProcessor:
@@ -9,7 +9,7 @@ class LogFileProcessor:
         self.parser = parser
         self.file_path = file_path
 
-    def process_file(self) -> List[Log]:
+    def process_file(self) -> Iterator[Log]:
         logs = []
 
         with open(self.file_path, 'r') as file:
@@ -17,6 +17,4 @@ class LogFileProcessor:
                 line = line.strip()
                 if line:
                     log = self.parser.parse(line)
-                    logs.append(log)
-
-        return logs
+                    yield log

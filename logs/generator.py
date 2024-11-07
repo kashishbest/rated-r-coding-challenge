@@ -4,7 +4,7 @@ import random
 random.seed(42)  # Set seed before generating durations
 
 # Parameters
-num_entries = 10000
+num_entries = 1
 log_file = "api_requests.log"
 
 # Possible values for log fields

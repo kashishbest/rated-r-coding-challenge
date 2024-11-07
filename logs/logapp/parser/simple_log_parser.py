@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import List
 
-from logs.logapp.models.models import Log
-from logs.logapp.parser import LogParserInterface
+from django.utils.timezone import make_aware
+
+from logapp.models.models import Log
+from logapp.parser import LogParserInterface
 
 
 class SimpleLogParser(LogParserInterface):
@@ -13,7 +15,7 @@ class SimpleLogParser(LogParserInterface):
 
     def parse(self, log_entry: str) -> Log:
         parts = log_entry.split()
-        time_stamp = datetime.strptime(f"{parts[0]} {parts[1]}", "%Y-%m-%d %H:%M:%S")
+        time_stamp = make_aware(datetime.strptime(f"{parts[0]} {parts[1]}", "%Y-%m-%d %H:%M:%S"))
         customer_id = parts[2]
         request_path = parts[3]
         status_code = int(parts[4])

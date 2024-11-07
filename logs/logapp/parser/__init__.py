@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from logs.logapp.models.models import Log
+from logapp.models.models import Log
 
 
 class LogParserInterface(ABC):

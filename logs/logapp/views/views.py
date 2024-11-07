@@ -2,11 +2,13 @@
 from datetime import datetime
 
 from django.db.models import Avg
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotAllowed
 from django.utils.timezone import make_aware
 
 from logapp.models import Log
 from logapp.models.api_models import Stats, StatsResponse
+from logapp.parser.log_file_processor import LogFileProcessor
+from logapp.parser.simple_log_parser import SimpleLogParser
 from logapp.serializers.serializers import StatsResponseSerializer
 
 
@@ -45,10 +47,11 @@ def customer_stats(request, id):
 
     stats = Stats(total_successful_requests=successful_requests,
                   total_failed_requests=failed_requests,
-                  uptime=uptime,
-                  average_latency=average_latency,
-                  median_latency=median_latency,
-                  p99_latency=p99_latency)
+                  uptime=round(uptime, 2),
+                  average_latency=round(average_latency, 2),
+                  median_latency=round(median_latency, 2),
+                  p99_latency=round(p99_latency, 2)
+                  )
     # Prepare the response data
     response_data = StatsResponse(
         customer_id=id,
@@ -58,4 +61,27 @@ def customer_stats(request, id):
     serializer = StatsResponseSerializer(response_data)
     return JsonResponse(serializer.data)
 
-# TODO : round all float to 2 digits
+
+def load(request):
+    if request.method != 'POST':
+        # Return a 405 Method Not Allowed response for non-POST requests
+        return HttpResponseNotAllowed(['POST'])
+
+    parser = SimpleLogParser()
+    processor = LogFileProcessor(parser, 'api_requests.log')
+
+    batch_size = 1000  # Define a batch size for bulk inserts
+    logs_batch = []
+
+    for log in processor.process_file():
+        logs_batch.append(log)
+        if len(logs_batch) >= batch_size:
+            # Bulk insert the current batch of logs
+            Log.objects.bulk_create(logs_batch)
+            logs_batch = []  # Clear the batch list
+
+    # Insert any remaining logs in the final batch
+    if logs_batch:
+        Log.objects.bulk_create(logs_batch)
+
+    return JsonResponse({"status": "done"}, status=200)
